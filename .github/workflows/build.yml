@@ -139,8 +139,7 @@ jobs:
           API_URL: ${{ secrets.API_URL }}
           API_KEY: ${{ secrets.API_KEY }}
         run: |
-          TEXT=$(git log v$(jq -r .version package.json)..HEAD --pretty=format:%s | grep -v '^[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g')
-          echo $TEXT
+          TEXT=$(git log $(jq -r .version package.json)..HEAD --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g')
           QUESTION="Translate into Chinese:\n"""\n$TEXT\n""""
           PAYLOAD=$(cat <<EOF
           {
@@ -165,7 +164,6 @@ jobs:
             -d "$PAYLOAD" \
             --max-time 30)
           echo '# 更新日志' > changelog.md
-          echo $RESPONSE | jq .choices[0].message.content -r | sed 's/\\n/\n/g'
           echo $RESPONSE | jq .choices[0].message.content -r | sed 's/\\n/\n/g' >> changelog.md
 
       - name: Update Version
